@@ -28,7 +28,7 @@ export default function ProfileScreen() {
     return (
       <Screen center>
         <GlassCard style={styles.card}>
-          <QuickPlateLogo size={48} showWordmark />
+          <QuickPlateLogo height={44} />
           <Text style={[styles.title, { color: colors.foreground }]}>Inicia sesión</Text>
           <Text style={[styles.sub, { color: colors.mutedForeground }]}>
             Crea una cuenta para guardar y ver tus placas registradas.

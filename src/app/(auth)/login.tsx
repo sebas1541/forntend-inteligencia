@@ -59,7 +59,7 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.hero}>
-            <QuickPlateLogo size={56} />
+            <QuickPlateLogo height={56} />
             <Text style={[styles.title, { color: colors.foreground }]}>
               Inicia sesión o regístrate
             </Text>

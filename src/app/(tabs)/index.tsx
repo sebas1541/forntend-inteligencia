@@ -27,7 +27,7 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.hero}>
-        <QuickPlateLogo size={64} showWordmark />
+        <QuickPlateLogo height={56} />
         <Text style={[styles.tagline, { color: colors.mutedForeground }]}>
           Lectura y clasificación de placas vehiculares colombianas en tiempo real.
         </Text>
