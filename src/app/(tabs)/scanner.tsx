@@ -258,7 +258,7 @@ export default function ScannerScreen() {
     return (
       <Fallback
         title="Sin cámara"
-        message="No se encontró una cámara trasera. Probá en un dispositivo físico (el simulador no tiene cámara)."
+        message="No se encontró una cámara trasera. Prueba en un dispositivo físico (el simulador no tiene cámara)."
       />
     );
   }
@@ -327,7 +327,7 @@ export default function ScannerScreen() {
               ? 'Cargando modelo…'
               : !initialized
                 ? 'Iniciando cámara…'
-                : 'Apuntá a la placa'}
+                : 'Apunta a la placa'}
           </Text>
         </View>
       )}
