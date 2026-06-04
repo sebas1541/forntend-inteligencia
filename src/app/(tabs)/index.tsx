@@ -109,7 +109,7 @@ export default function MapScreen() {
       {initialRegion ? (
         <MapView
           ref={mapRef}
-          provider={PROVIDER_GOOGLE}
+          provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
           style={styles.fill}
           initialRegion={initialRegion}
           customMapStyle={(isDark ? MAP_STYLE_DARK : MAP_STYLE_LIGHT) as never}
