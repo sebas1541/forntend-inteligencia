@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { GoogleLogo } from '@/components/google-logo';
 import { QuickPlateLogo } from '@/components/quick-plate-logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -85,10 +86,18 @@ export default function LoginScreen() {
             <View style={[styles.line, { backgroundColor: colors.border }]} />
           </View>
 
-          <View style={styles.social}>
-            <SocialTile glyph="G" glyphColor="#4285F4" onPress={() => Alert.alert('Próximamente', 'Login con Google')} />
-            <SocialTile glyph="" glyphColor={colors.foreground} onPress={() => Alert.alert('Próximamente', 'Login con Apple')} />
-          </View>
+          <Pressable
+            onPress={() => Alert.alert('Próximamente', 'Login con Google')}
+            accessibilityRole="button"
+            accessibilityLabel="Continuar con Google"
+            style={({ pressed }) => [
+              styles.googleBtn,
+              { borderColor: colors.border, backgroundColor: pressed ? colors.muted : colors.card },
+            ]}
+          >
+            <GoogleLogo size={20} />
+            <Text style={[styles.googleText, { color: colors.foreground }]}>Continuar con Google</Text>
+          </Pressable>
 
           <View style={styles.signup}>
             <Text style={{ color: colors.mutedForeground }}>¿No tienes cuenta? </Text>
@@ -102,21 +111,6 @@ export default function LoginScreen() {
   );
 }
 
-function SocialTile({ glyph, glyphColor, onPress }: { glyph: string; glyphColor: string; onPress: () => void }) {
-  const colors = useThemeColors();
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.tile,
-        { borderColor: colors.border, backgroundColor: pressed ? colors.muted : colors.card },
-      ]}
-    >
-      <Text style={{ fontSize: 30, fontWeight: '700', color: glyphColor }}>{glyph}</Text>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   fill: { flex: 1 },
   close: { position: 'absolute', top: Spacing.three, right: Spacing.three, zIndex: 10, width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
@@ -127,8 +121,16 @@ const styles = StyleSheet.create({
   dividerRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 24 },
   line: { flex: 1, height: 1 },
   or: { marginHorizontal: 12, fontSize: 14 },
-  social: { flexDirection: 'row', gap: 12, justifyContent: 'center' },
-  tile: { width: 96, height: 96, borderRadius: 16, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  googleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    height: 52,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  googleText: { fontSize: 16, fontWeight: '600' },
   signup: { marginTop: 40, flexDirection: 'row', justifyContent: 'center' },
   signupLink: { fontWeight: '700' },
 });

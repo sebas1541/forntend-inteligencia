@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { GlassButton } from '@/components/glass/glass-button';
 import { GlassCard } from '@/components/glass/glass-card';
+import { ProfileMenu } from '@/components/profile-menu';
 import { QuickPlateLogo } from '@/components/quick-plate-logo';
 import { Screen } from '@/components/ui/screen';
 import { PlateColors, Radius, Spacing } from '@/constants/theme';
@@ -21,6 +22,10 @@ export default function HomeScreen() {
 
   return (
     <Screen>
+      <View style={styles.topBar}>
+        <ProfileMenu />
+      </View>
+
       <View style={styles.hero}>
         <QuickPlateLogo size={64} showWordmark />
         <Text style={[styles.tagline, { color: colors.mutedForeground }]}>
@@ -58,6 +63,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  topBar: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', minHeight: 44 },
   hero: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.three },
   tagline: { fontSize: 16, textAlign: 'center', lineHeight: 22, maxWidth: 320 },
   card: { padding: Spacing.four, gap: Spacing.three },
