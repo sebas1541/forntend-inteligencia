@@ -82,6 +82,8 @@ export const api = {
     }),
   login: (email: string, password: string) =>
     request<AuthToken>('/auth/login', { method: 'POST', body: { email, password } }),
+  googleLogin: (idToken: string) =>
+    request<AuthToken>('/auth/google', { method: 'POST', body: { id_token: idToken } }),
   me: (token: string) => request<User>('/auth/me', { token }),
   listPlates: (token: string) => request<Plate[]>('/plates', { token }),
   createPlate: (token: string, input: PlateInput) =>

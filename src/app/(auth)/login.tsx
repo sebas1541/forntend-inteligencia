@@ -2,6 +2,7 @@ import { Link, useRouter } from 'expo-router';
 import { X } from 'lucide-react-native';
 import { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -19,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Spacing } from '@/constants/theme';
 import { useThemeColors } from '@/hooks/use-theme-colors';
+import { useGoogleSignIn } from '@/lib/google-signin';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -27,6 +29,18 @@ export default function LoginScreen() {
   const colors = useThemeColors();
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | undefined>();
+  const google = useGoogleSignIn();
+
+  const onGoogle = () => {
+    if (google.ready) {
+      void google.prompt();
+    } else {
+      Alert.alert(
+        'Google no configurado',
+        'Agrega EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID y _WEB_CLIENT_ID en .env y reconstruye la app.',
+      );
+    }
+  };
 
   // Closing the login modal always returns to the map (home), like koen.
   const dismiss = () => {
@@ -87,17 +101,30 @@ export default function LoginScreen() {
           </View>
 
           <Pressable
-            onPress={() => Alert.alert('Próximamente', 'Login con Google')}
+            onPress={onGoogle}
+            disabled={google.busy}
             accessibilityRole="button"
             accessibilityLabel="Continuar con Google"
             style={({ pressed }) => [
               styles.googleBtn,
               { borderColor: colors.border, backgroundColor: pressed ? colors.muted : colors.card },
+              google.busy && { opacity: 0.6 },
             ]}
           >
-            <GoogleLogo size={20} />
-            <Text style={[styles.googleText, { color: colors.foreground }]}>Continuar con Google</Text>
+            {google.busy ? (
+              <ActivityIndicator color={colors.foreground} />
+            ) : (
+              <>
+                <GoogleLogo size={20} />
+                <Text style={[styles.googleText, { color: colors.foreground }]}>
+                  Continuar con Google
+                </Text>
+              </>
+            )}
           </Pressable>
+          {google.error && (
+            <Text style={[styles.googleError, { color: colors.destructive }]}>{google.error}</Text>
+          )}
 
           <View style={styles.signup}>
             <Text style={{ color: colors.mutedForeground }}>¿No tienes cuenta? </Text>
@@ -131,6 +158,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   googleText: { fontSize: 16, fontWeight: '600' },
+  googleError: { fontSize: 13, textAlign: 'center', marginTop: 8 },
   signup: { marginTop: 40, flexDirection: 'row', justifyContent: 'center' },
   signupLink: { fontWeight: '700' },
 });
