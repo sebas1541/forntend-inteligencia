@@ -10,18 +10,10 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.sebas1541.quickplate",
-      "supportsTablet": true,
-      "config": {
-        "googleMapsApiKey": "REPLACE_WITH_YOUR_GOOGLE_MAPS_API_KEY"
-      }
+      "supportsTablet": true
     },
     "android": {
       "package": "com.sebas1541.quickplate",
-      "config": {
-        "googleMaps": {
-          "apiKey": "REPLACE_WITH_YOUR_GOOGLE_MAPS_API_KEY"
-        }
-      },
       "adaptiveIcon": {
         "backgroundColor": "#EEF2FF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
