@@ -1,9 +1,9 @@
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { LogOut } from 'lucide-react-native';
+import { useCallback } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { GlassCard } from '@/components/glass/glass-card';
-import { QuickPlateLogo } from '@/components/quick-plate-logo';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
@@ -16,6 +16,16 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { user, loading, signOut } = useAuth();
 
+  // Guests get the login modal instead of a placeholder screen.
+  useFocusEffect(
+    useCallback(() => {
+      if (!loading && !user) {
+        const id = setTimeout(() => router.push('/(auth)/login'), 0);
+        return () => clearTimeout(id);
+      }
+    }, [loading, user]),
+  );
+
   if (loading) {
     return (
       <Screen center>
@@ -27,20 +37,7 @@ export default function ProfileScreen() {
   if (!user) {
     return (
       <Screen center>
-        <GlassCard style={styles.card}>
-          <QuickPlateLogo height={44} />
-          <Text style={[styles.title, { color: colors.foreground }]}>Inicia sesión</Text>
-          <Text style={[styles.sub, { color: colors.mutedForeground }]}>
-            Crea una cuenta para guardar y ver tus placas registradas.
-          </Text>
-          <Button
-            label="Iniciar sesión o registrarte"
-            size="lg"
-            fullWidth
-            onPress={() => router.push('/(auth)/login')}
-            style={styles.action}
-          />
-        </GlassCard>
+        <ActivityIndicator color={colors.primary} />
       </Screen>
     );
   }

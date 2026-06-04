@@ -4,7 +4,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Locate } from 'lucide-react-native';
+import { Locate, ScanLine } from 'lucide-react-native';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, type Region } from 'react-native-maps';
@@ -47,7 +47,7 @@ export default function MapScreen() {
 
   const mapRef = useRef<MapView>(null);
   const sheetTopY = useSharedValue(0);
-  const snapPoints = useMemo(() => ['45%', '92%'], []);
+  const snapPoints = useMemo(() => ['42%', '100%'], []);
 
   const [plates, setPlates] = useState<Plate[]>([]);
   const load = useCallback(async () => {
@@ -133,6 +133,14 @@ export default function MapScreen() {
       <SafeAreaView edges={['top']} style={styles.header} pointerEvents="box-none">
         <View style={styles.headerRow}>
           <ProfileMenu />
+          <Pressable onPress={() => router.navigate('/scanner')} accessibilityLabel="Nueva placa">
+            <GlassCard radius={Radius.pill} interactive style={styles.scanPill}>
+              <View style={styles.scanInner}>
+                <ScanLine size={18} color={colors.primary} />
+                <Text style={[styles.scanText, { color: colors.primary }]}>Escanear</Text>
+              </View>
+            </GlassCard>
+          </Pressable>
         </View>
       </SafeAreaView>
 
@@ -145,6 +153,8 @@ export default function MapScreen() {
         animatedPosition={sheetTopY}
         enablePanDownToClose={false}
         enableDynamicSizing={false}
+        enableOverDrag={false}
+        animateOnMount
         handleIndicatorStyle={{ backgroundColor: colors.mutedForeground, width: 44, height: 5, borderRadius: 3 }}
         backgroundComponent={SheetBackground}
       >
@@ -250,7 +260,16 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   loadingText: { marginTop: Spacing.three, fontSize: 14 },
   header: { position: 'absolute', top: 0, left: 0, right: 0 },
-  headerRow: { paddingHorizontal: Spacing.four, paddingTop: Spacing.two, flexDirection: 'row' },
+  headerRow: {
+    paddingHorizontal: Spacing.four,
+    paddingTop: Spacing.two,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  scanPill: { height: 44 },
+  scanInner: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14, gap: 6 },
+  scanText: { fontSize: 14, fontWeight: '700' },
   sheetGlass: { borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: 'hidden' },
   sheetSolid: {
     borderTopLeftRadius: 24,

@@ -67,6 +67,16 @@ export default function HistoryScreen() {
     }, [load]),
   );
 
+  // Guests can't have a history — bounce straight to the login modal.
+  useFocusEffect(
+    useCallback(() => {
+      if (!authLoading && !token) {
+        const id = setTimeout(() => router.push('/(auth)/login'), 0);
+        return () => clearTimeout(id);
+      }
+    }, [authLoading, token]),
+  );
+
   async function addPlate() {
     if (!token || !plateText.trim()) return;
     setSaving(true);
@@ -111,18 +121,7 @@ export default function HistoryScreen() {
   if (!token) {
     return (
       <Screen center>
-        <GlassCard style={styles.gateCard}>
-          <Text style={[styles.gateTitle, { color: colors.foreground }]}>Inicia sesión</Text>
-          <Text style={[styles.gateMsg, { color: colors.mutedForeground }]}>
-            Crea una cuenta o inicia sesión para guardar y ver las placas que registres.
-          </Text>
-          <GlassButton
-            intensity="clear"
-            label="Ir a Perfil"
-            onPress={() => router.navigate('/profile')}
-            style={styles.gateBtn}
-          />
-        </GlassCard>
+        <ActivityIndicator color={colors.primary} />
       </Screen>
     );
   }

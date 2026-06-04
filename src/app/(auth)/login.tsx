@@ -28,9 +28,9 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | undefined>();
 
+  // Closing the login modal always returns to the map (home), like koen.
   const dismiss = () => {
-    if (router.canGoBack()) router.back();
-    else router.replace('/(tabs)');
+    router.replace('/(tabs)');
   };
 
   const onContinue = () => {
