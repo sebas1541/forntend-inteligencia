@@ -113,15 +113,6 @@ export default function MapScreen() {
     }
   };
 
-  const focusPlate = (p: Plate) => {
-    if (p.lat != null && p.lng != null) {
-      mapRef.current?.animateToRegion(
-        { latitude: p.lat, longitude: p.lng, latitudeDelta: 0.01, longitudeDelta: 0.01 },
-        400,
-      );
-    }
-  };
-
   // Tocar un grupo: abre el abanico animando cada carro desde el centro hacia su
   // posición en el anillo (suave + escalonado) y centra el mapa para verlo.
   const expandCluster = (cl: PlateCluster) => {
@@ -284,7 +275,7 @@ export default function MapScreen() {
             contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 96 }]}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
-              <PlateRow plate={item.plate} distanceKm={item.distance} onPress={() => focusPlate(item.plate)} />
+              <PlateRow plate={item.plate} distanceKm={item.distance} onPress={() => openPlate(item.plate)} />
             )}
           />
         )}
