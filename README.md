@@ -222,6 +222,12 @@ vidrio. Colores de acento por tipo de placa (fuente única en
 
 ---
 
-**Autor:** Sebastián Cañón Castellanos — proyecto del curso *Inteligencia Computacional*.
+**Autores** — Universidad Pedagógica y Tecnológica de Colombia (UPTC), Tunja —
+proyecto del curso *Inteligencia Computacional*:
+
+- **Sebastián Cañón Castellanos** (cód. 202127352) — *autor principal*.
+- Kevin Johann Jiménez Poveda (cód. 202220120).
+- Pedro Eduardo Cruz López (cód. 202128778).
+
 Repos relacionados: `inteligencia-computacional-proyecto` (modelo ML) ·
 `inteligencia-backend` (API FastAPI).
