@@ -7,7 +7,8 @@ import { GlassCard } from '@/components/glass/glass-card';
 import { ProfileMenu } from '@/components/profile-menu';
 import { QuickPlateLogo } from '@/components/quick-plate-logo';
 import { Screen } from '@/components/ui/screen';
-import { PlateColors, Radius, Spacing } from '@/constants/theme';
+import { VehicleArt } from '@/components/vehicle-art';
+import { Radius, Spacing } from '@/constants/theme';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 
 const PLATE_TYPES = [
@@ -37,7 +38,7 @@ export default function HomeScreen() {
         <Text style={[styles.cardTitle, { color: colors.foreground }]}>Tipos de placa</Text>
         {PLATE_TYPES.map((t) => (
           <View key={t.key} style={styles.typeRow}>
-            <View style={[styles.dot, { backgroundColor: PlateColors[t.key] }]} />
+            <VehicleArt type={t.key} size={48} />
             <View style={styles.typeText}>
               <Text style={[styles.typeLabel, { color: colors.foreground }]}>{t.label}</Text>
               <Text style={[styles.typeHint, { color: colors.mutedForeground }]}>{t.hint}</Text>
@@ -69,7 +70,6 @@ const styles = StyleSheet.create({
   card: { padding: Spacing.four, gap: Spacing.three },
   cardTitle: { fontSize: 18, fontWeight: '700', marginBottom: Spacing.one },
   typeRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
-  dot: { width: 18, height: 18, borderRadius: Radius.pill },
   typeText: { gap: 1 },
   typeLabel: { fontSize: 16, fontWeight: '600' },
   typeHint: { fontSize: 13 },

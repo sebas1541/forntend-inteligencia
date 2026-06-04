@@ -15,7 +15,8 @@ import {
 import { GlassButton } from '@/components/glass/glass-button';
 import { GlassCard } from '@/components/glass/glass-card';
 import { Screen } from '@/components/ui/screen';
-import { PlateColors, Radius, Spacing, type PlateType } from '@/constants/theme';
+import { VehicleArt } from '@/components/vehicle-art';
+import { Radius, Spacing, type PlateType } from '@/constants/theme';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { ApiError, api, type Plate } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -192,10 +193,9 @@ export default function HistoryScreen() {
           </View>
         }
         renderItem={({ item }) => {
-          const dotColor = PlateColors[item.plate_type as PlateType] ?? PlateColors.desconocido;
           return (
             <GlassCard style={styles.item}>
-              <View style={[styles.itemDot, { backgroundColor: dotColor }]} />
+              <VehicleArt type={item.plate_type} size={40} />
               <View style={styles.itemBody}>
                 <Text style={[styles.itemPlate, { color: colors.foreground }]}>{item.plate}</Text>
                 <Text style={[styles.itemMeta, { color: colors.mutedForeground }]}>
@@ -233,7 +233,6 @@ const styles = StyleSheet.create({
   saveBtn: { alignSelf: 'stretch' },
   error: { fontSize: 14, textAlign: 'center' },
   item: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, padding: Spacing.three },
-  itemDot: { width: 14, height: 14, borderRadius: Radius.pill },
   itemBody: { flex: 1, gap: 2 },
   itemPlate: { fontSize: 18, fontWeight: '700', letterSpacing: 1 },
   itemMeta: { fontSize: 13, textTransform: 'capitalize' },
