@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Clock, House, ScanLine, User as UserIcon } from 'lucide-react-native';
+import { Clock, Map as MapIcon, ScanLine, User as UserIcon } from 'lucide-react-native';
 
 import { useThemeColors } from '@/hooks/use-theme-colors';
 
@@ -22,7 +22,7 @@ export default function TabsLayout() {
     >
       <Tabs.Screen
         name="index"
-        options={{ title: 'Inicio', tabBarIcon: ({ color }) => <House size={24} color={color} /> }}
+        options={{ title: 'Mapa', tabBarIcon: ({ color }) => <MapIcon size={24} color={color} /> }}
       />
       <Tabs.Screen
         name="scanner"

@@ -59,6 +59,8 @@ export interface Plate {
   color: string | null;
   confidence: number | null;
   note: string | null;
+  lat: number | null;
+  lng: number | null;
   created_at: string;
 }
 
@@ -68,6 +70,8 @@ export interface PlateInput {
   color?: string | null;
   confidence?: number | null;
   note?: string | null;
+  lat?: number | null;
+  lng?: number | null;
 }
 
 export const api = {

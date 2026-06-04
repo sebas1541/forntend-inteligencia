@@ -20,6 +20,7 @@ import { Radius, Spacing, type PlateType } from '@/constants/theme';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { ApiError, api, type Plate } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
+import { getCurrentCoords } from '@/lib/use-location';
 import { withAlpha } from '@/utils/color';
 
 const TYPE_OPTIONS: { key: PlateType; label: string }[] = [
@@ -71,9 +72,12 @@ export default function HistoryScreen() {
     setSaving(true);
     setError(null);
     try {
+      const coords = await getCurrentCoords();
       await api.createPlate(token, {
         plate: plateText.trim().toUpperCase(),
         plate_type: plateType,
+        lat: coords?.latitude ?? null,
+        lng: coords?.longitude ?? null,
       });
       setPlateText('');
       setPlateType('particular');

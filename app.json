@@ -10,10 +10,18 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.sebas1541.quickplate",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "REPLACE_WITH_YOUR_GOOGLE_MAPS_API_KEY"
+      }
     },
     "android": {
       "package": "com.sebas1541.quickplate",
+      "config": {
+        "googleMaps": {
+          "apiKey": "REPLACE_WITH_YOUR_GOOGLE_MAPS_API_KEY"
+        }
+      },
       "adaptiveIcon": {
         "backgroundColor": "#EEF2FF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -46,7 +54,13 @@
           "enableFrameProcessors": false
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "QuickPlate usa tu ubicación para marcar en el mapa dónde escaneaste cada placa."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
