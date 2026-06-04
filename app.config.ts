@@ -11,11 +11,20 @@ const googleIosScheme = iosClientId
   ? `com.googleusercontent.apps.${iosClientId.replace('.apps.googleusercontent.com', '')}`
   : undefined;
 
+// URL schemes que debe registrar la app:
+//  - 'quickplate'              -> deep links propios.
+//  - 'com.sebas1541.quickplate' -> redirect de Google en ANDROID (expo-auth-session
+//    usa applicationId:/oauthredirect como callback). SIN esto el login de Google
+//    en Android no vuelve a la app.
+//  - googleIosScheme          -> redirect de Google en iOS (client ID reverso).
+const schemes = ['quickplate', 'com.sebas1541.quickplate'];
+if (googleIosScheme) schemes.push(googleIosScheme);
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: config.name ?? 'QuickPlate',
   slug: config.slug ?? 'quickplate',
-  scheme: googleIosScheme ? ['quickplate', googleIosScheme] : (config.scheme ?? 'quickplate'),
+  scheme: schemes,
   ios: {
     ...config.ios,
     config: {

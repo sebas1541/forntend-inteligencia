@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": ["quickplate", "com.sebas1541.quickplate"],
+    "scheme": "quickplate",
     "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "com.sebas1541.quickplate",
