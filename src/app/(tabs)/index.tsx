@@ -7,10 +7,16 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Locate, ScanLine } from 'lucide-react-native';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, type Region } from 'react-native-maps';
+import MapView, {
+  AnimatedRegion,
+  MarkerAnimated,
+  PROVIDER_GOOGLE,
+  type Region,
+} from 'react-native-maps';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ClusterMarker } from '@/components/cluster-marker';
 import { GlassCard } from '@/components/glass/glass-card';
 import { PlateMarker } from '@/components/plate-marker';
 import { ProfileMenu } from '@/components/profile-menu';
@@ -21,6 +27,7 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useIsDarkMode, useThemeColors } from '@/hooks/use-theme-colors';
 import { api, type Plate } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
+import { clusterPlates, ringCoord, type PlateCluster } from '@/lib/cluster';
 import { haversineKm } from '@/lib/geo';
 import { useUserLocation } from '@/lib/use-location';
 
@@ -47,9 +54,15 @@ export default function MapScreen() {
 
   const mapRef = useRef<MapView>(null);
   const sheetTopY = useSharedValue(0);
-  const snapPoints = useMemo(() => ['42%', '100%'], []);
+  const snapPoints = useMemo(() => ['48%', '100%'], []);
 
   const [plates, setPlates] = useState<Plate[]>([]);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  // Al tocar un cluster, el onPress del mapa también dispara: ignorar el colapso
+  // durante un instante para que el abanico no se cierre en el mismo toque.
+  const suppressCollapseRef = useRef(0);
+  // Coordenadas animadas de cada placa del cluster abierto (para el abanico suave).
+  const spiderRegionsRef = useRef<Record<string, AnimatedRegion[]>>({});
   const load = useCallback(async () => {
     if (!token) {
       setPlates([]);
@@ -64,6 +77,8 @@ export default function MapScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      setExpandedId(null);
+      spiderRegionsRef.current = {};
       void load();
     }, [load]),
   );
@@ -72,6 +87,9 @@ export default function MapScreen() {
     () => plates.filter((p) => p.lat != null && p.lng != null),
     [plates],
   );
+
+  // Agrupar placas en el mismo punto para no encimar marcadores.
+  const clusters = useMemo(() => clusterPlates(located), [located]);
 
   const sorted = useMemo(() => {
     const withDistance = located.map((p) => ({
@@ -104,6 +122,52 @@ export default function MapScreen() {
     }
   };
 
+  // Tocar un grupo: abre el abanico animando cada carro desde el centro hacia su
+  // posición en el anillo (suave + escalonado) y centra el mapa para verlo.
+  const expandCluster = (cl: PlateCluster) => {
+    suppressCollapseRef.current = Date.now();
+    const regions = cl.plates.map(
+      () =>
+        new AnimatedRegion({
+          latitude: cl.lat,
+          longitude: cl.lng,
+          latitudeDelta: 0,
+          longitudeDelta: 0,
+        }),
+    );
+    spiderRegionsRef.current[cl.id] = regions;
+    setExpandedId(cl.id);
+    mapRef.current?.animateToRegion(
+      { latitude: cl.lat, longitude: cl.lng, latitudeDelta: 0.006, longitudeDelta: 0.006 },
+      350,
+    );
+    cl.plates.forEach((_, i) => {
+      const target = ringCoord(cl.lat, cl.lng, i, cl.plates.length);
+      setTimeout(() => {
+        regions[i]
+          .timing({
+            toValue: 0, // requerido por el tipo; AnimatedRegion usa lat/lng
+            latitude: target.latitude,
+            longitude: target.longitude,
+            latitudeDelta: 0,
+            longitudeDelta: 0,
+            duration: 340,
+            useNativeDriver: false,
+          })
+          .start();
+      }, 60 + i * 45);
+    });
+  };
+
+  const collapseClusters = () => {
+    setExpandedId(null);
+    spiderRegionsRef.current = {};
+  };
+
+  const openPlate = (p: Plate) => {
+    router.push({ pathname: '/plate/[id]', params: { id: String(p.id) } });
+  };
+
   return (
     <View style={[styles.fill, { backgroundColor: colors.background }]}>
       {initialRegion ? (
@@ -116,10 +180,41 @@ export default function MapScreen() {
           showsUserLocation
           showsMyLocationButton={false}
           showsCompass={false}
+          onPress={() => {
+            // Ignorar el colapso si viene del mismo toque que expandió el cluster.
+            if (Date.now() - suppressCollapseRef.current < 500) return;
+            collapseClusters();
+          }}
         >
-          {located.map((p) => (
-            <PlateMarker key={p.id} plate={p} onPress={() => focusPlate(p)} />
-          ))}
+          {clusters.map((cl) => {
+            // Punto único → marcador normal.
+            if (cl.plates.length === 1) {
+              const p = cl.plates[0];
+              return <PlateMarker key={p.id} plate={p} onPress={() => openPlate(p)} />;
+            }
+            // Grupo cerrado → círculo con el número.
+            if (expandedId !== cl.id) {
+              return <ClusterMarker key={cl.id} cluster={cl} onPress={() => expandCluster(cl)} />;
+            }
+            // Grupo abierto → abanico animado: cada placa sale del centro al anillo.
+            return cl.plates.map((p, i) => {
+              const region = spiderRegionsRef.current[cl.id]?.[i];
+              if (!region) return null;
+              return (
+                <MarkerAnimated
+                  key={p.id}
+                  coordinate={region as never}
+                  onPress={() => openPlate(p)}
+                  anchor={{ x: 0.5, y: 0.5 }}
+                  tracksViewChanges={false}
+                >
+                  <View style={styles.spiderPin}>
+                    <VehicleArt type={p.plate_type} size={30} />
+                  </View>
+                </MarkerAnimated>
+              );
+            });
+          })}
         </MapView>
       ) : (
         <View style={[styles.fill, styles.center]}>
@@ -136,8 +231,8 @@ export default function MapScreen() {
           <Pressable onPress={() => router.navigate('/scanner')} accessibilityLabel="Nueva placa">
             <GlassCard radius={Radius.pill} interactive style={styles.scanPill}>
               <View style={styles.scanInner}>
-                <ScanLine size={18} color={colors.primary} />
-                <Text style={[styles.scanText, { color: colors.primary }]}>Escanear</Text>
+                <ScanLine size={18} color={colors.foreground} />
+                <Text style={[styles.scanText, { color: colors.foreground }]}>Escanear</Text>
               </View>
             </GlassCard>
           </Pressable>
@@ -186,7 +281,7 @@ export default function MapScreen() {
           <BottomSheetFlatList
             data={sorted}
             keyExtractor={(item) => String(item.plate.id)}
-            contentContainerStyle={styles.list}
+            contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 96 }]}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
               <PlateRow plate={item.plate} distanceKm={item.distance} onPress={() => focusPlate(item.plate)} />
@@ -266,6 +361,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  spiderPin: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#4F46E5',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   scanPill: { height: 44 },
   scanInner: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14, gap: 6 },

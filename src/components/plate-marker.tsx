@@ -3,13 +3,30 @@ import { Marker } from 'react-native-maps';
 
 import { VehicleArt } from '@/components/vehicle-art';
 import type { Plate } from '@/lib/api';
+import type { Coordinates } from '@/lib/geo';
 
-/** Map pin for a saved plate: vehicle icon in a white disc + native callout. */
-export function PlateMarker({ plate, onPress }: { plate: Plate; onPress?: () => void }) {
-  if (plate.lat == null || plate.lng == null) return null;
+/**
+ * Map pin for a saved plate: vehicle icon in a white disc + native callout.
+ * `coordinate` permite ubicarlo fuera de su lat/lng real (para el spiderfy).
+ */
+export function PlateMarker({
+  plate,
+  coordinate,
+  onPress,
+}: {
+  plate: Plate;
+  coordinate?: Coordinates;
+  onPress?: () => void;
+}) {
+  const coord =
+    coordinate ??
+    (plate.lat != null && plate.lng != null
+      ? { latitude: plate.lat, longitude: plate.lng }
+      : null);
+  if (!coord) return null;
   return (
     <Marker
-      coordinate={{ latitude: plate.lat, longitude: plate.lng }}
+      coordinate={coord}
       title={plate.plate}
       description={plate.plate_type}
       onPress={onPress}

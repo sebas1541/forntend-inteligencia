@@ -3,6 +3,7 @@ import { Plus, Trash2 } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Pressable,
   RefreshControl,
@@ -29,9 +30,10 @@ const TYPE_OPTIONS: { key: PlateType; label: string }[] = [
   { key: 'moto', label: 'Moto' },
 ];
 
-function formatDate(iso: string): string {
+function formatDateTime(iso: string): string {
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString();
+  if (Number.isNaN(d.getTime())) return '';
+  return `${d.toLocaleDateString()} · ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 }
 
 export default function HistoryScreen() {
@@ -108,6 +110,17 @@ export default function HistoryScreen() {
     } catch {
       void load();
     }
+  }
+
+  function confirmRemove(item: Plate) {
+    Alert.alert(
+      'Eliminar placa',
+      `¿Eliminar ${item.plate} del historial? Esta acción no se puede deshacer.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Eliminar', style: 'destructive', onPress: () => void remove(item.id) },
+      ],
+    );
   }
 
   if (authLoading) {
@@ -198,14 +211,21 @@ export default function HistoryScreen() {
         renderItem={({ item }) => {
           return (
             <GlassCard style={styles.item}>
-              <VehicleArt type={item.plate_type} size={40} />
-              <View style={styles.itemBody}>
-                <Text style={[styles.itemPlate, { color: colors.foreground }]}>{item.plate}</Text>
-                <Text style={[styles.itemMeta, { color: colors.mutedForeground }]}>
-                  {item.plate_type} · {formatDate(item.created_at)}
-                </Text>
-              </View>
-              <Pressable onPress={() => remove(item.id)} hitSlop={10}>
+              <Pressable
+                style={styles.itemMain}
+                onPress={() => router.push({ pathname: '/plate/[id]', params: { id: String(item.id) } })}
+                accessibilityRole="button"
+                accessibilityLabel={`Ver detalle de ${item.plate}`}
+              >
+                <VehicleArt type={item.plate_type} size={40} />
+                <View style={styles.itemBody}>
+                  <Text style={[styles.itemPlate, { color: colors.foreground }]}>{item.plate}</Text>
+                  <Text style={[styles.itemMeta, { color: colors.mutedForeground }]}>
+                    {item.plate_type} · {formatDateTime(item.created_at)}
+                  </Text>
+                </View>
+              </Pressable>
+              <Pressable onPress={() => confirmRemove(item)} hitSlop={10}>
                 <Trash2 size={20} color={colors.mutedForeground} />
               </Pressable>
             </GlassCard>
@@ -236,6 +256,7 @@ const styles = StyleSheet.create({
   saveBtn: { alignSelf: 'stretch' },
   error: { fontSize: 14, textAlign: 'center' },
   item: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, padding: Spacing.three },
+  itemMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   itemBody: { flex: 1, gap: 2 },
   itemPlate: { fontSize: 18, fontWeight: '700', letterSpacing: 1 },
   itemMeta: { fontSize: 13, textTransform: 'capitalize' },

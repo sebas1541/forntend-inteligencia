@@ -49,6 +49,7 @@ export interface User {
   id: number;
   email: string;
   full_name: string | null;
+  avatar_url: string | null;
   created_at: string;
 }
 
@@ -86,8 +87,11 @@ export const api = {
     request<AuthToken>('/auth/google', { method: 'POST', body: { id_token: idToken } }),
   me: (token: string) => request<User>('/auth/me', { token }),
   listPlates: (token: string) => request<Plate[]>('/plates', { token }),
+  getPlate: (token: string, id: number) => request<Plate>(`/plates/${id}`, { token }),
   createPlate: (token: string, input: PlateInput) =>
     request<Plate>('/plates', { method: 'POST', body: input, token }),
+  updatePlate: (token: string, id: number, input: Partial<PlateInput>) =>
+    request<Plate>(`/plates/${id}`, { method: 'PATCH', body: input, token }),
   deletePlate: (token: string, id: number) =>
     request<void>(`/plates/${id}`, { method: 'DELETE', token }),
 };
