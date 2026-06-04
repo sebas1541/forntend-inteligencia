@@ -6,14 +6,26 @@ import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Locate, ScanLine } from 'lucide-react-native';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import MapView, {
   AnimatedRegion,
   MarkerAnimated,
   PROVIDER_GOOGLE,
   type Region,
 } from 'react-native-maps';
-import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ClusterMarker } from '@/components/cluster-marker';
@@ -49,6 +61,7 @@ export default function MapScreen() {
   const colors = useThemeColors();
   const isDark = useIsDarkMode();
   const insets = useSafeAreaInsets();
+  const { height: screenHeight } = useWindowDimensions();
   const { token } = useAuth();
   const { coords, status, refresh } = useUserLocation();
 
@@ -58,6 +71,7 @@ export default function MapScreen() {
 
   const [plates, setPlates] = useState<Plate[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [sheetIndex, setSheetIndex] = useState(0);
   // Al tocar un cluster, el onPress del mapa también dispara: ignorar el colapso
   // durante un instante para que el abanico no se cierre en el mismo toque.
   const suppressCollapseRef = useRef(0);
@@ -230,13 +244,21 @@ export default function MapScreen() {
         </View>
       </SafeAreaView>
 
-      {initialRegion ? <FloatingLocate animatedSheetTop={sheetTopY} onPress={focusUser} /> : null}
+      {initialRegion ? (
+        <FloatingLocate
+          animatedSheetTop={sheetTopY}
+          screenHeight={screenHeight}
+          hidden={sheetIndex > 0}
+          onPress={focusUser}
+        />
+      ) : null}
 
       <BottomSheet
         index={0}
         snapPoints={snapPoints}
         topInset={insets.top + 76}
         animatedPosition={sheetTopY}
+        onChange={setSheetIndex}
         enablePanDownToClose={false}
         enableDynamicSizing={false}
         enableOverDrag={false}
@@ -314,27 +336,38 @@ function PlateRow({
 
 function FloatingLocate({
   animatedSheetTop,
+  screenHeight,
+  hidden,
   onPress,
 }: {
   animatedSheetTop: ReturnType<typeof useSharedValue<number>>;
+  screenHeight: number;
+  hidden: boolean;
   onPress: () => void;
 }) {
   const colors = useThemeColors();
   const SIZE = 44;
+  // Se desvanece a medida que la hoja sube (se expande) y reaparece al minimizar.
   const style = useAnimatedStyle(() => ({
     position: 'absolute',
     right: 16,
     top: animatedSheetTop.value - SIZE - 12,
+    opacity: interpolate(
+      animatedSheetTop.value,
+      [screenHeight * 0.32, screenHeight * 0.46],
+      [0, 1],
+      Extrapolation.CLAMP,
+    ),
   }));
   return (
-    <Animated.View pointerEvents="box-none" style={style}>
+    <Animated.View pointerEvents={hidden ? 'none' : 'box-none'} style={style}>
       <GlassCard radius={Radius.pill} interactive style={{ width: SIZE, height: SIZE }}>
         <Pressable
           onPress={onPress}
           accessibilityLabel="Centrar en mi ubicación"
           style={styles.center}
         >
-          <Locate size={18} color={colors.primary} />
+          <Locate size={18} color={colors.foreground} />
         </Pressable>
       </GlassCard>
     </Animated.View>
