@@ -104,6 +104,15 @@ export default function RootLayout() {
                   gestureEnabled: true,
                 }}
               />
+              <Stack.Screen
+                name="analytics"
+                options={{
+                  headerShown: false,
+                  presentation: 'modal',
+                  animation: Platform.OS === 'android' ? 'slide_from_bottom' : undefined,
+                  gestureEnabled: true,
+                }}
+              />
             </Stack>
             <AuthGate />
             <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />

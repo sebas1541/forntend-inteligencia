@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Plus, Trash2 } from 'lucide-react-native';
+import { BarChart3, Plus, Trash2 } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
@@ -12,6 +12,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GlassButton } from '@/components/glass/glass-button';
 import { GlassCard } from '@/components/glass/glass-card';
@@ -40,6 +41,7 @@ export default function HistoryScreen() {
   const colors = useThemeColors();
   const isDark = useIsDarkMode();
   const headerIcon = isDark ? '#FFFFFF' : colors.primary;
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { token, loading: authLoading } = useAuth();
 
@@ -244,6 +246,18 @@ export default function HistoryScreen() {
           ) : null
         }
       />
+
+      {plates.length > 0 && (
+        <Pressable
+          onPress={() => router.push('/analytics')}
+          accessibilityRole="button"
+          accessibilityLabel="Análisis"
+          style={[styles.fab, { bottom: insets.bottom + 84, backgroundColor: colors.primary }]}
+        >
+          <BarChart3 size={18} color={colors.primaryForeground} />
+          <Text style={[styles.fabText, { color: colors.primaryForeground }]}>Análisis</Text>
+        </Pressable>
+      )}
     </Screen>
   );
 }
@@ -260,6 +274,22 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 34, fontWeight: '900' },
   headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    height: 50,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  fabText: { fontSize: 15, fontWeight: '800' },
   form: { padding: Spacing.three, gap: Spacing.three },
   input: { borderWidth: 1, borderRadius: Radius.md, paddingHorizontal: 14, paddingVertical: 12, fontSize: 18, fontWeight: '700', letterSpacing: 1 },
   chips: { flexDirection: 'row', gap: Spacing.two },
