@@ -18,7 +18,7 @@ import { GlassCard } from '@/components/glass/glass-card';
 import { Screen } from '@/components/ui/screen';
 import { VehicleArt } from '@/components/vehicle-art';
 import { Radius, Spacing, type PlateType } from '@/constants/theme';
-import { useThemeColors } from '@/hooks/use-theme-colors';
+import { useIsDarkMode, useThemeColors } from '@/hooks/use-theme-colors';
 import { ApiError, api, type Plate } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { getCurrentCoords } from '@/lib/use-location';
@@ -38,6 +38,8 @@ function formatDateTime(iso: string): string {
 
 export default function HistoryScreen() {
   const colors = useThemeColors();
+  const isDark = useIsDarkMode();
+  const headerIcon = isDark ? '#FFFFFF' : colors.primary;
   const router = useRouter();
   const { token, loading: authLoading } = useAuth();
 
@@ -152,10 +154,13 @@ export default function HistoryScreen() {
           <View style={styles.headerWrap}>
             <View style={styles.headerRow}>
               <Text style={[styles.title, { color: colors.foreground }]}>Historial</Text>
-              <Pressable onPress={() => setFormOpen((v) => !v)} hitSlop={10}>
-                <GlassCard radius={Radius.pill} interactive style={styles.addBtn}>
-                  <Plus size={22} color={colors.primary} />
-                </GlassCard>
+              <Pressable
+                onPress={() => setFormOpen((v) => !v)}
+                hitSlop={10}
+                accessibilityLabel="Agregar placa"
+                style={[styles.headerBtn, { backgroundColor: colors.muted }]}
+              >
+                <Plus size={22} color={headerIcon} />
               </Pressable>
             </View>
 
@@ -244,11 +249,17 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  list: { padding: Spacing.four, paddingBottom: 120, gap: Spacing.three },
+  list: { paddingHorizontal: 24, paddingTop: Spacing.four, paddingBottom: 120, gap: Spacing.three },
   headerWrap: { gap: Spacing.three, marginBottom: Spacing.one },
-  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 28, fontWeight: '800' },
-  addBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  headerRow: {
+    height: 56,
+    paddingTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  title: { fontSize: 34, fontWeight: '900' },
+  headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   form: { padding: Spacing.three, gap: Spacing.three },
   input: { borderWidth: 1, borderRadius: Radius.md, paddingHorizontal: 14, paddingVertical: 12, fontSize: 18, fontWeight: '700', letterSpacing: 1 },
   chips: { flexDirection: 'row', gap: Spacing.two },

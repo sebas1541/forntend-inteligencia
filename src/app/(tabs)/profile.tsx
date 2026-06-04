@@ -28,7 +28,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/ui/avatar';
 import { Screen } from '@/components/ui/screen';
-import { useThemeColors } from '@/hooks/use-theme-colors';
+import { useIsDarkMode, useThemeColors } from '@/hooks/use-theme-colors';
 import { api, type Plate } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { withAlpha } from '@/utils/color';
@@ -78,6 +78,8 @@ function AuthenticatedProfile({
 }) {
   const router = useRouter();
   const colors = useThemeColors();
+  const isDark = useIsDarkMode();
+  const headerIcon = isDark ? '#FFFFFF' : colors.primary;
   const [infoModal, setInfoModal] = useState<'help' | 'privacy' | null>(null);
 
   const stats = useMemo(() => {
@@ -95,9 +97,9 @@ function AuthenticatedProfile({
           <Text style={[styles.title, { color: colors.foreground }]}>Perfil</Text>
           <Pressable
             accessibilityLabel="Notificaciones"
-            style={[styles.bell, { backgroundColor: colors.muted }]}
+            style={[styles.headerBtn, { backgroundColor: colors.muted }]}
           >
-            <Bell size={18} color={colors.foreground} />
+            <Bell size={20} color={headerIcon} />
           </Pressable>
         </View>
 
@@ -327,7 +329,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   title: { fontSize: 34, fontWeight: '900' },
-  bell: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  headerBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   summary: {
     marginHorizontal: 24,
     marginTop: 12,
