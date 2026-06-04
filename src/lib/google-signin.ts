@@ -17,6 +17,8 @@ export function useGoogleSignIn() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | undefined>();
 
+  // Client IDs por plataforma (se incrustan en build desde .env / EXPO_PUBLIC_*).
+  // Android requiere su propio client ID (tipo Android: package + SHA-1).
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
