@@ -29,21 +29,13 @@ export default function HomeScreen() {
       </View>
 
       <GlassCard style={styles.card} interactive>
-        <Text style={[styles.cardTitle, { color: colors.foreground }]}>
-          Tipos de placa
-        </Text>
+        <Text style={[styles.cardTitle, { color: colors.foreground }]}>Tipos de placa</Text>
         {PLATE_TYPES.map((t) => (
           <View key={t.key} style={styles.typeRow}>
-            <View
-              style={[styles.dot, { backgroundColor: PlateColors[t.key] }]}
-            />
+            <View style={[styles.dot, { backgroundColor: PlateColors[t.key] }]} />
             <View style={styles.typeText}>
-              <Text style={[styles.typeLabel, { color: colors.foreground }]}>
-                {t.label}
-              </Text>
-              <Text style={[styles.typeHint, { color: colors.mutedForeground }]}>
-                {t.hint}
-              </Text>
+              <Text style={[styles.typeLabel, { color: colors.foreground }]}>{t.label}</Text>
+              <Text style={[styles.typeHint, { color: colors.mutedForeground }]}>{t.hint}</Text>
             </View>
           </View>
         ))}
@@ -52,14 +44,12 @@ export default function HomeScreen() {
       <View style={styles.footer}>
         <GlassButton
           intensity="clear"
-          onPress={() => router.push('/scanner')}
+          onPress={() => router.navigate('/scanner')}
           style={styles.cta}
         >
           <View style={styles.ctaInner}>
             <ScanLine size={20} color={colors.primary} />
-            <Text style={[styles.ctaLabel, { color: colors.primary }]}>
-              Escanear placa
-            </Text>
+            <Text style={[styles.ctaLabel, { color: colors.primary }]}>Escanear placa</Text>
           </View>
         </GlassButton>
       </View>
@@ -68,49 +58,17 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.three,
-  },
-  tagline: {
-    fontSize: 16,
-    textAlign: 'center',
-    lineHeight: 22,
-    maxWidth: 320,
-  },
-  card: {
-    padding: Spacing.four,
-    gap: Spacing.three,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: Spacing.one,
-  },
-  typeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
-  },
-  dot: {
-    width: 18,
-    height: 18,
-    borderRadius: Radius.pill,
-  },
+  hero: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.three },
+  tagline: { fontSize: 16, textAlign: 'center', lineHeight: 22, maxWidth: 320 },
+  card: { padding: Spacing.four, gap: Spacing.three },
+  cardTitle: { fontSize: 18, fontWeight: '700', marginBottom: Spacing.one },
+  typeRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  dot: { width: 18, height: 18, borderRadius: Radius.pill },
   typeText: { gap: 1 },
   typeLabel: { fontSize: 16, fontWeight: '600' },
   typeHint: { fontSize: 13 },
-  footer: {
-    paddingTop: Spacing.four,
-    paddingBottom: Spacing.three,
-  },
+  footer: { paddingTop: Spacing.four, paddingBottom: Spacing.three },
   cta: { alignSelf: 'stretch' },
-  ctaInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-  },
+  ctaInner: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   ctaLabel: { fontSize: 17, fontWeight: '700' },
 });

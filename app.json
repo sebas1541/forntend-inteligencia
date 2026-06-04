@@ -45,7 +45,8 @@
           "enableMicrophonePermission": false,
           "enableFrameProcessors": false
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

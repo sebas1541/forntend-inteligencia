@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Colors } from '@/constants/theme';
+import { AuthProvider } from '@/lib/auth';
 
 export default function RootLayout() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
@@ -26,18 +27,19 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <ThemeProvider value={navTheme}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: c.background },
-            }}
-          >
-            <Stack.Screen name="index" />
-            <Stack.Screen name="scanner" />
-          </Stack>
-          <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider value={navTheme}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: c.background },
+              }}
+            >
+              <Stack.Screen name="(tabs)" />
+            </Stack>
+            <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+          </ThemeProvider>
+        </AuthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
