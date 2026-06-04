@@ -6,7 +6,7 @@ import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Locate, ScanLine } from 'lucide-react-native';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, type Region } from 'react-native-maps';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -109,7 +109,7 @@ export default function MapScreen() {
       {initialRegion ? (
         <MapView
           ref={mapRef}
-          provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+          provider={PROVIDER_GOOGLE}
           style={styles.fill}
           initialRegion={initialRegion}
           customMapStyle={(isDark ? MAP_STYLE_DARK : MAP_STYLE_LIGHT) as never}

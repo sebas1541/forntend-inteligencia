@@ -10,7 +10,10 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.sebas1541.quickplate",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "REPLACE_WITH_YOUR_GOOGLE_MAPS_API_KEY"
+      }
     },
     "android": {
       "package": "com.sebas1541.quickplate",
@@ -57,7 +60,8 @@
         {
           "locationWhenInUsePermission": "QuickPlate usa tu ubicación para marcar en el mapa dónde escaneaste cada placa."
         }
-      ]
+      ],
+      "./plugins/with-rnmaps-google-podspec"
     ],
     "experiments": {
       "typedRoutes": true,
