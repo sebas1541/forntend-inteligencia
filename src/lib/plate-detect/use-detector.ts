@@ -4,8 +4,9 @@ import {
   ImageFormat,
   Skia,
 } from '@shopify/react-native-skia';
-import { useCallback } from 'react';
-import { useTensorflowModel } from 'react-native-fast-tflite';
+import { Asset } from 'expo-asset';
+import { useCallback, useEffect, useState } from 'react';
+import { loadTensorflowModel, type TensorflowModel } from 'react-native-fast-tflite';
 
 import { classifyDetection, decodeYolo, type Detection } from './decode';
 
@@ -32,8 +33,41 @@ export interface PlateDetector {
  * 416x416 RGB normalizado y la pasa por el modelo (snapshot loop, sin worklets).
  */
 export function usePlateDetector(): PlateDetector {
-  const plugin = useTensorflowModel(MODEL, []);
-  const model = plugin.state === 'loaded' ? plugin.model : undefined;
+  const [model, setModel] = useState<TensorflowModel | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | undefined>(undefined);
+
+  // Carga robusta del modelo para builds Release (iOS + Android).
+  //
+  // No usamos useTensorflowModel(require(...)) porque en Release de Android,
+  // Image.resolveAssetSource(require) devuelve solo el nombre del recurso
+  // (p.ej. "assets_model_placa_detector", SIN esquema) y el loader nativo de
+  // fast-tflite hace `URL(path).readBytes()` -> MalformedURLException.
+  // expo-asset copia el recurso empaquetado a un archivo real y nos da un
+  // file:// válido, que el loader sí sabe leer en ambas plataformas.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoading(true);
+        const asset = Asset.fromModule(MODEL);
+        if (!asset.downloaded) await asset.downloadAsync();
+        const url = asset.localUri ?? asset.uri;
+        const m = await loadTensorflowModel({ url }, []);
+        if (!cancelled) {
+          setModel(m);
+          setError(undefined);
+        }
+      } catch (e) {
+        if (!cancelled) setError((e as Error)?.message ?? String(e));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const detect = useCallback(
     async (photoPath: string): Promise<Detection[]> => {
@@ -94,9 +128,9 @@ export function usePlateDetector(): PlateDetector {
   );
 
   return {
-    ready: plugin.state === 'loaded',
-    loading: plugin.state === 'loading',
-    error: plugin.state === 'error' ? plugin.error.message : undefined,
+    ready: model != null,
+    loading,
+    error,
     detect,
   };
 }
