@@ -17,7 +17,7 @@ interface AuthState {
   /** True while restoring the saved session on startup. */
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName?: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -61,8 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const t = await api.login(email, password);
       await persist(t.access_token);
     },
-    signUp: async (email, password) => {
-      const t = await api.register(email, password);
+    signUp: async (email, password, fullName) => {
+      const t = await api.register(email, password, fullName);
       await persist(t.access_token);
     },
     signOut: async () => {

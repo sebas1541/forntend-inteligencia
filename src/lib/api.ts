@@ -48,6 +48,7 @@ export interface AuthToken {
 export interface User {
   id: number;
   email: string;
+  full_name: string | null;
   created_at: string;
 }
 
@@ -70,8 +71,11 @@ export interface PlateInput {
 }
 
 export const api = {
-  register: (email: string, password: string) =>
-    request<AuthToken>('/auth/register', { method: 'POST', body: { email, password } }),
+  register: (email: string, password: string, fullName?: string) =>
+    request<AuthToken>('/auth/register', {
+      method: 'POST',
+      body: { email, password, full_name: fullName ?? null },
+    }),
   login: (email: string, password: string) =>
     request<AuthToken>('/auth/login', { method: 'POST', body: { email, password } }),
   me: (token: string) => request<User>('/auth/me', { token }),
