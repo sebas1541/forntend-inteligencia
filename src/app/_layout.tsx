@@ -6,6 +6,7 @@ import {
   useRouter,
   useSegments,
 } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 import { LogBox, Platform, useColorScheme } from 'react-native';
@@ -22,6 +23,11 @@ LogBox.ignoreLogs([
   'Tried to reject a promise more than once',
   'Cannot Record',
 ]);
+
+// Splash: mantener el logo (tema claro/oscuro) hasta que la app esté lista y
+// luego desvanecerlo suavemente.
+SplashScreen.preventAutoHideAsync().catch(() => {});
+SplashScreen.setOptions({ duration: 450, fade: true });
 
 /**
  * Presents the login modal when there's no session, and dismisses it on
@@ -50,6 +56,11 @@ function AuthGate() {
       return () => clearTimeout(id);
     }
   }, [loading, segments, token, router]);
+
+  // App lista (sesión restaurada) → desvanecer el splash.
+  useEffect(() => {
+    if (!loading) SplashScreen.hideAsync().catch(() => {});
+  }, [loading]);
 
   return null;
 }
