@@ -10,10 +10,10 @@ import {
   StyleSheet,
   Text,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SheetView } from '@/components/sheet-view';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { ApiError } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -48,7 +48,7 @@ export default function PasswordScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.fill, { backgroundColor: colors.background }]}>
+    <SheetView>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.fill}
@@ -94,7 +94,7 @@ export default function PasswordScreen() {
           />
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </SheetView>
   );
 }
 

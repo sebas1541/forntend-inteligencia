@@ -10,10 +10,10 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SheetView } from '@/components/sheet-view';
 import { Spacing } from '@/constants/theme';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { ApiError } from '@/lib/api';
@@ -84,7 +84,7 @@ export default function RegisterScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.fill, { backgroundColor: colors.background }]}>
+    <SheetView>
       <View style={styles.topBar}>
         <Pressable onPress={goBack} hitSlop={12} style={styles.iconBtn}>
           {isFirst ? <X size={22} color={colors.foreground} /> : <ArrowLeft size={22} color={colors.foreground} />}
@@ -166,7 +166,7 @@ export default function RegisterScreen() {
           onPress={goNext}
         />
       </View>
-    </SafeAreaView>
+    </SheetView>
   );
 }
 

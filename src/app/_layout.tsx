@@ -8,12 +8,20 @@ import {
 } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
-import { Platform, useColorScheme } from 'react-native';
+import { LogBox, Platform, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Colors } from '@/constants/theme';
 import { AuthProvider, useAuth } from '@/lib/auth';
+
+// La cámara puede rechazar takePhoto al suspenderse la sesión cuando se cierra
+// la app (-11803). Lo mitigamos parando el loop por AppState; esto silencia el
+// aviso residual en dev (en release no aparece de todos modos).
+LogBox.ignoreLogs([
+  'Tried to reject a promise more than once',
+  'Cannot Record',
+]);
 
 /**
  * Presents the login modal when there's no session, and dismisses it on
@@ -78,8 +86,21 @@ export default function RootLayout() {
               <Stack.Screen
                 name="(auth)"
                 options={{
-                  presentation: 'modal',
+                  // iOS: native pageSheet. Android: transparentModal para que la
+                  // ruta de abajo (mapa) siga montada y el SheetView dibuje la
+                  // hoja sobre un backdrop oscuro (igual que koen).
+                  presentation: Platform.OS === 'ios' ? 'modal' : 'transparentModal',
                   animation: Platform.OS === 'android' ? 'slide_from_bottom' : undefined,
+                  gestureEnabled: true,
+                }}
+              />
+              <Stack.Screen
+                name="plate/[id]"
+                options={{
+                  headerShown: false,
+                  presentation: Platform.OS === 'ios' ? 'modal' : 'transparentModal',
+                  animation: Platform.OS === 'android' ? 'slide_from_bottom' : undefined,
+                  contentStyle: { backgroundColor: 'transparent' },
                   gestureEnabled: true,
                 }}
               />

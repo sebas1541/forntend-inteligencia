@@ -1,41 +1,60 @@
-import { useRouter } from 'expo-router';
+import { MenuView, type NativeActionEvent } from '@react-native-menu/menu';
 import * as Haptics from 'expo-haptics';
-import { LogOut, Settings } from 'lucide-react-native';
-import { type ReactNode, useRef, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { GlassCard } from '@/components/glass/glass-card';
 import { Avatar } from '@/components/ui/avatar';
 import { Radius } from '@/constants/theme';
-import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useAuth } from '@/lib/auth';
 
-const MENU_WIDTH = 250;
-
-type Anchor = { x: number; y: number; width: number; height: number };
+const ACTION_SETTINGS = 'profile_settings';
+const ACTION_LOGOUT = 'profile_logout';
 
 /**
- * Header avatar pill (glass). Tapping opens a glass dropdown with
- * "Configuración de perfil" + "Cerrar sesión" (koen's profile menu).
+ * Header avatar pill (glass). Tap abre el menú nativo (PopupMenu/UIMenu). Como
+ * el menú en modo tap no "levanta" la vista origen, emulamos ese morph: al abrir
+ * el menú la foto del avatar se DESVANECE (opacity→0 con un leve lift) y reaparece
+ * al cerrarlo, para que no quede el círculo flotando junto al menú.
  * Guests get a pill that opens the login modal.
  */
 export function ProfileMenu() {
   const router = useRouter();
-  const colors = useThemeColors();
   const { user, signOut } = useAuth();
 
-  const pillRef = useRef<View>(null);
-  const [open, setOpen] = useState(false);
-  const [anchor, setAnchor] = useState<Anchor | null>(null);
+  // Animación: el avatar se desvanece mientras el menú está abierto.
+  const opacity = useSharedValue(1);
+  const scale = useSharedValue(1);
+  const pillStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+  }));
+
+  const onOpen = () => {
+    Haptics.selectionAsync().catch(() => {});
+    scale.value = withTiming(1.08, { duration: 160 });
+    opacity.value = withTiming(0, { duration: 160 });
+  };
+  const onClose = () => {
+    opacity.value = withTiming(1, { duration: 180 });
+    scale.value = withSpring(1, { damping: 14, stiffness: 220, mass: 0.7 });
+  };
 
   const pill = (
     <GlassCard radius={Radius.pill} interactive style={styles.pill}>
       <View style={styles.pillInner}>
-        <Avatar name={user?.full_name ?? user?.email} size={40} />
+        <Avatar uri={user?.avatar_url} name={user?.full_name ?? user?.email} size={40} />
       </View>
     </GlassCard>
   );
 
+  // Guest → tapping just opens the login modal.
   if (!user) {
     return (
       <Pressable onPress={() => router.push('/(auth)/login')} accessibilityLabel="Iniciar sesión">
@@ -44,107 +63,46 @@ export function ProfileMenu() {
     );
   }
 
-  const openMenu = () => {
-    pillRef.current?.measureInWindow((x, y, width, height) => {
-      setAnchor({ x, y, width, height });
-      setOpen(true);
-      Haptics.selectionAsync().catch(() => {});
-    });
-  };
-
-  const handle = (key: 'settings' | 'logout') => {
-    setOpen(false);
-    if (key === 'settings') router.navigate('/profile');
-    else void signOut();
+  const onPressAction = ({ nativeEvent }: NativeActionEvent) => {
+    if (nativeEvent.event === ACTION_SETTINGS) router.navigate('/profile');
+    else if (nativeEvent.event === ACTION_LOGOUT) void signOut();
   };
 
   return (
-    <>
-      <Pressable ref={pillRef} onPress={openMenu} accessibilityRole="button" accessibilityLabel="Perfil">
-        {pill}
-      </Pressable>
-
-      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
-        <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
-          {anchor && (
-            <View
-              style={[
-                styles.menuWrap,
-                {
-                  top: anchor.y + anchor.height + 8,
-                  left: Math.max(8, anchor.x + anchor.width - MENU_WIDTH),
-                },
-              ]}
-            >
-              <GlassCard radius={18} style={styles.surface}>
-                <MenuRow
-                  icon={<Settings size={18} color={colors.primary} />}
-                  label="Configuración de perfil"
-                  onPress={() => handle('settings')}
-                />
-                <View style={[styles.sep, { backgroundColor: colors.border }]} />
-                <MenuRow
-                  icon={<LogOut size={18} color={colors.destructive} />}
-                  label="Cerrar sesión"
-                  destructive
-                  onPress={() => handle('logout')}
-                />
-              </GlassCard>
-            </View>
-          )}
-        </Pressable>
-      </Modal>
-    </>
-  );
-}
-
-function MenuRow({
-  icon,
-  label,
-  onPress,
-  destructive = false,
-}: {
-  icon: ReactNode;
-  label: string;
-  onPress: () => void;
-  destructive?: boolean;
-}) {
-  const colors = useThemeColors();
-  return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label}>
-      {({ pressed }) => (
-        <View
-          style={[
-            styles.row,
-            { backgroundColor: pressed ? (destructive ? 'rgba(220,38,38,0.10)' : 'rgba(79,70,229,0.10)') : 'transparent' },
-          ]}
-        >
-          <View style={styles.rowIcon}>{icon}</View>
-          <Text style={[styles.rowLabel, { color: destructive ? colors.destructive : colors.foreground }]}>
-            {label}
-          </Text>
-        </View>
-      )}
-    </Pressable>
+    <MenuView
+      title=""
+      shouldOpenOnLongPress={false}
+      onOpenMenu={onOpen}
+      onCloseMenu={onClose}
+      onPressAction={onPressAction}
+      actions={[
+        {
+          id: ACTION_SETTINGS,
+          title: 'Configuración de perfil',
+          image: Platform.select({ ios: 'gearshape.fill' }),
+        },
+        {
+          // Grupo inline → divisor + acción destructiva, como koen.
+          id: 'profile_logout_group',
+          title: '',
+          displayInline: true,
+          subactions: [
+            {
+              id: ACTION_LOGOUT,
+              title: 'Cerrar sesión',
+              attributes: { destructive: true },
+              image: Platform.select({ ios: 'rectangle.portrait.and.arrow.right' }),
+            },
+          ],
+        },
+      ]}
+    >
+      <Animated.View style={pillStyle}>{pill}</Animated.View>
+    </MenuView>
   );
 }
 
 const styles = StyleSheet.create({
   pill: { width: 44, height: 44 },
   pillInner: { flex: 1, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  backdrop: { flex: 1 },
-  menuWrap: {
-    position: 'absolute',
-    width: MENU_WIDTH,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.16,
-    shadowRadius: 18,
-    elevation: 10,
-  },
-  surface: { paddingVertical: 6 },
-  row: { flexDirection: 'row', alignItems: 'center', minHeight: 48, paddingHorizontal: 14, paddingVertical: 8, gap: 12 },
-  rowIcon: { width: 32, alignItems: 'center', justifyContent: 'center' },
-  rowLabel: { fontSize: 15, fontWeight: '600', letterSpacing: 0.2, flex: 1 },
-  sep: { height: 1, marginHorizontal: 12, marginVertical: 4 },
 });

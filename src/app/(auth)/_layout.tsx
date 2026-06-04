@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import { Platform } from 'react-native';
 
 import { useThemeColors } from '@/hooks/use-theme-colors';
 
@@ -8,7 +9,11 @@ export default function AuthLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: colors.background },
+        // Android usa transparentModal → fondo transparente para que el
+        // SheetView deje ver el backdrop oscuro sobre el mapa.
+        contentStyle: {
+          backgroundColor: Platform.OS === 'android' ? 'transparent' : colors.background,
+        },
       }}
     />
   );

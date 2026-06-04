@@ -12,10 +12,9 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { GoogleLogo } from '@/components/google-logo';
 import { QuickPlateLogo } from '@/components/quick-plate-logo';
+import { SheetView } from '@/components/sheet-view';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Spacing } from '@/constants/theme';
@@ -58,7 +57,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.fill, { backgroundColor: colors.background }]}>
+    <SheetView>
       <Pressable onPress={dismiss} hitSlop={12} style={styles.close} accessibilityLabel="Cerrar">
         <X size={24} color={colors.foreground} />
       </Pressable>
@@ -134,7 +133,7 @@ export default function LoginScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </SheetView>
   );
 }
 
