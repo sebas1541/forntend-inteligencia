@@ -12,7 +12,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GlassButton } from '@/components/glass/glass-button';
 import { GlassCard } from '@/components/glass/glass-card';
@@ -41,7 +40,6 @@ export default function HistoryScreen() {
   const colors = useThemeColors();
   const isDark = useIsDarkMode();
   const headerIcon = isDark ? '#FFFFFF' : colors.primary;
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { token, loading: authLoading } = useAuth();
 
@@ -252,7 +250,7 @@ export default function HistoryScreen() {
           onPress={() => router.push('/analytics')}
           accessibilityRole="button"
           accessibilityLabel="Análisis"
-          style={[styles.fab, { bottom: insets.bottom + 84, backgroundColor: colors.primary }]}
+          style={[styles.fab, { backgroundColor: colors.primary }]}
         >
           <BarChart3 size={18} color={colors.primaryForeground} />
           <Text style={[styles.fabText, { color: colors.primaryForeground }]}>Análisis</Text>
@@ -277,6 +275,7 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
+    bottom: 20,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,

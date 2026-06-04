@@ -26,6 +26,7 @@ import Animated, {
 
 import { VehicleArt } from '@/components/vehicle-art';
 import { useThemeColors } from '@/hooks/use-theme-colors';
+import { PLATE_TYPE_COLOR } from '@/lib/plate-detect/decode';
 import { api, type Plate } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { withAlpha } from '@/utils/color';
@@ -33,9 +34,9 @@ import { withAlpha } from '@/utils/color';
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const TYPE_META: { key: string; label: string; color: string; match: (t: string) => boolean }[] = [
-  { key: 'carro', label: 'Carros', color: '#16A34A', match: (t) => t === 'carro' || t === 'particular' },
-  { key: 'moto', label: 'Motos', color: '#4F46E5', match: (t) => t === 'moto' },
-  { key: 'publico', label: 'Públicos', color: '#334155', match: (t) => t === 'publico' },
+  { key: 'carro', label: 'Carros', color: PLATE_TYPE_COLOR.carro, match: (t) => t === 'carro' || t === 'particular' },
+  { key: 'moto', label: 'Motos', color: PLATE_TYPE_COLOR.moto, match: (t) => t === 'moto' },
+  { key: 'publico', label: 'Públicos', color: PLATE_TYPE_COLOR.publico, match: (t) => t === 'publico' },
 ];
 
 const DAY_LABELS = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
@@ -137,7 +138,7 @@ export default function AnalyticsScreen() {
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {/* Tarjetas resumen */}
           <View style={styles.cards}>
-            <StatCard index={0} value={stats.total} label="Placas" color={colors.primary} />
+            <StatCard index={0} value={stats.total} label="Placas" color={colors.foreground} />
             <StatCard index={1} value={stats.counts[0]} label="Carros" color={TYPE_META[0].color} />
             <StatCard index={2} value={stats.counts[1]} label="Motos" color={TYPE_META[1].color} />
             <StatCard index={3} value={stats.counts[2]} label="Públicos" color={TYPE_META[2].color} />
@@ -361,7 +362,8 @@ function UbicCard({
 const styles = StyleSheet.create({
   fill: { flex: 1 },
   header: {
-    height: 56,
+    paddingTop: 16,
+    paddingBottom: 10,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',

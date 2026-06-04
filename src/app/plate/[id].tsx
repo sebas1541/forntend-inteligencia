@@ -19,17 +19,11 @@ import { SheetView } from '@/components/sheet-view';
 import { VehicleArt } from '@/components/vehicle-art';
 import { MAP_STYLE_DARK, MAP_STYLE_LIGHT } from '@/constants/map-styles';
 import { useIsDarkMode, useThemeColors } from '@/hooks/use-theme-colors';
+import { PLATE_TYPE_COLOR } from '@/lib/plate-detect/decode';
 import { api, type Plate } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { withAlpha } from '@/utils/color';
 
-const TYPE_COLOR: Record<string, string> = {
-  carro: '#16A34A',
-  particular: '#16A34A',
-  moto: '#4F46E5',
-  publico: '#334155',
-  desconocido: '#6B7280',
-};
 const TYPE_LABEL: Record<string, string> = {
   carro: 'Carro',
   particular: 'Carro particular',
@@ -37,7 +31,7 @@ const TYPE_LABEL: Record<string, string> = {
   publico: 'Público',
   desconocido: 'Placa',
 };
-const colorFor = (t: string) => TYPE_COLOR[t] ?? '#6B7280';
+const colorFor = (t: string) => PLATE_TYPE_COLOR[t] ?? '#6B7280';
 const labelFor = (t: string) => TYPE_LABEL[t] ?? 'Placa';
 
 // Opciones de tipo al editar (con su muñequito).

@@ -33,6 +33,15 @@ export const PLATE_LABEL: Record<PlateType, string> = {
   desconocido: 'Placa',
 };
 
+/** Color de acento por tipo (fuente única para todas las vistas). */
+export const PLATE_TYPE_COLOR: Record<string, string> = {
+  carro: '#4F46E5', // morado
+  particular: '#4F46E5',
+  moto: '#EF4444', // rojo
+  publico: '#F59E0B', // amarillo/ámbar
+  desconocido: '#6B7280',
+};
+
 const NUM_ANCHORS = 3549;
 const DEFAULT_CONF = 0.4;
 const DEFAULT_IOU = 0.45;

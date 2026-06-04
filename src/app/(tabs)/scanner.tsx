@@ -33,7 +33,7 @@ import {
   usePlateDetector,
   type Detection,
 } from '@/lib/plate-detect/use-detector';
-import { PLATE_LABEL, type PlateType } from '@/lib/plate-detect/decode';
+import { PLATE_LABEL, PLATE_TYPE_COLOR, type PlateType } from '@/lib/plate-detect/decode';
 import { readPlate } from '@/lib/plate-detect/ocr';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -48,13 +48,8 @@ const OCR_INTERVAL = 1500;
 
 type PlateRead = { plate: string | null; type: PlateType };
 
-// Color de la caja/etiqueta según el tipo de vehículo.
-const TYPE_COLOR: Record<PlateType, string> = {
-  carro: '#16A34A', // verde
-  moto: '#4F46E5', // índigo (primario de la app)
-  publico: '#334155', // gris pizarra (placa pública blanca)
-  desconocido: '#6B7280', // gris
-};
+// Color de la caja/etiqueta según el tipo (fuente única en decode.ts).
+const TYPE_COLOR = PLATE_TYPE_COLOR;
 
 // Pausa entre capturas (ms).
 const LOOP_DELAY = 350;
