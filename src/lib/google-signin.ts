@@ -1,11 +1,24 @@
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 
 import { useAuth } from '@/lib/auth';
 
 // Required so the auth popup can hand control back to the app.
 WebBrowser.maybeCompleteAuthSession();
+
+// En Android, el redirect de OAuth debe usar un scheme que expo-router NO enrute
+// (si no, atrapa `quickplate://oauthredirect` como ruta -> "Unmatched Route" y el
+// código nunca se intercambia). Usamos el client ID de Android *invertido*
+// (com.googleusercontent.apps.<id>), que registramos como intent-filter aparte en
+// el manifest (ver app.config.ts -> android.intentFilters). Así el navegador
+// interno captura el redirect y completa el login sin que expo-router interfiera.
+const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ?? '';
+const androidRedirectUri =
+  Platform.OS === 'android' && androidClientId
+    ? `com.googleusercontent.apps.${androidClientId.replace('.apps.googleusercontent.com', '')}:/oauth2redirect`
+    : undefined;
 
 /**
  * "Continuar con Google" flow: opens Google's sign-in, gets an ID token, and
@@ -23,6 +36,9 @@ export function useGoogleSignIn() {
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
     webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    // iOS funciona con el redirect por defecto; en Android forzamos el scheme
+    // invertido para que expo-router no robe el callback.
+    ...(androidRedirectUri ? { redirectUri: androidRedirectUri } : {}),
   });
 
   useEffect(() => {

@@ -11,6 +11,15 @@ const googleIosScheme = iosClientId
   ? `com.googleusercontent.apps.${iosClientId.replace('.apps.googleusercontent.com', '')}`
   : undefined;
 
+// Reversed ANDROID client ID. Lo usamos como redirect de OAuth SOLO en Android
+// (ver src/lib/google-signin.ts). Se registra como intent-filter aparte (abajo),
+// NO en `scheme`, para que expo-router NO lo enrute como pantalla y el navegador
+// interno pueda capturar el callback y completar el login.
+const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ?? '';
+const googleAndroidScheme = androidClientId
+  ? `com.googleusercontent.apps.${androidClientId.replace('.apps.googleusercontent.com', '')}`
+  : undefined;
+
 // URL schemes que debe registrar la app:
 //  - 'quickplate'              -> deep links propios.
 //  - 'com.sebas1541.quickplate' -> redirect de Google en ANDROID (expo-auth-session
@@ -38,5 +47,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       ...config.android?.config,
       googleMaps: { apiKey: googleMapsApiKey },
     },
+    // Intent-filter aparte para el redirect de Google en Android (scheme = client
+    // ID invertido). Va aquí y NO en `scheme` para que expo-router lo ignore.
+    intentFilters: [
+      ...(config.android?.intentFilters ?? []),
+      ...(googleAndroidScheme
+        ? [
+            {
+              action: 'VIEW',
+              category: ['DEFAULT', 'BROWSABLE'],
+              data: [{ scheme: googleAndroidScheme }],
+            },
+          ]
+        : []),
+    ],
   },
 });
