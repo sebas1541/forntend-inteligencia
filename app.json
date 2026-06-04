@@ -37,6 +37,14 @@
             "imageWidth": 76
           }
         }
+      ],
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "QuickPlate necesita la cámara para escanear placas.",
+          "enableMicrophonePermission": false,
+          "enableFrameProcessors": false
+        }
       ]
     ],
     "experiments": {
